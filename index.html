@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوت المحادثة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Tajawal:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            background-color: #fff;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #0066cc;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        #chatbox {
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #e1f5fe;
+            max-width: 75%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: #cce5ff;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .bot-message {
+            background-color: #e2f3db;
+            margin-right: auto;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            background-color: #fff;
+        }
+
+        #messageInput {
+            width: 85%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 12%;
+            padding: 10px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #005bb5;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <header>بوت المحادثة الذكي</header>
+    <div id="chatbox"></div>
+    <div class="input-container">
+        <input type="text" id="messageInput" placeholder="أدخل رسالتك هنا..." />
+        <button onclick="sendMessage()">إرسال</button>
+    </div>
+</div>
+
+<script>
+    function sendMessage() {
+        let userMessage = document.getElementById("messageInput").value;
+        if (userMessage === "") return;
+
+        let chatbox = document.getElementById("chatbox");
+
+        // إضافة رسالة المستخدم إلى واجهة الدردشة
+        chatbox.innerHTML += `<div class="message user-message"><strong>أنت:</strong> ${userMessage}</div>`;
+        
+        // مسح صندوق الإدخال
+        document.getElementById("messageInput").value = "";
+
+        // إرسال الرسالة إلى الخادم
+        fetch('http://127.0.0.1:5000/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: userMessage })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // إضافة رد البوت إلى واجهة الدردشة
+            chatbox.innerHTML += `<div class="message bot-message"><strong>بوت:</strong> ${data.response}</div>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+
+</body>
+</html>
